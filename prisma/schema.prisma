@@ -1,0 +1,44 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id       String @id @default(uuid())
+  email    String @unique
+  password String
+
+  bio       String?
+  interests String[] @default([])
+  movies    String[] @default([])
+  tvShows   String[] @default([])
+  books     String[] @default([])
+  music     String[] @default([])
+  games     String[] @default([])
+  other     String[] @default([])
+
+  systemEmbeddings SystemEmbeddings?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model SystemEmbeddings {
+  id        String                      @id @default(uuid())
+  embedding Unsupported("vector(1536)")
+  createdAt DateTime                    @default(now())
+  updatedAt DateTime                    @updatedAt
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@map("system_embeddings")
+}
