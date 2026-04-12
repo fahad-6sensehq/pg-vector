@@ -23,11 +23,30 @@ model User {
   other     String[] @default([])
 
   systemEmbeddings SystemEmbeddings?
+  address          Address?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@map("users")
+}
+
+model Address {
+  id       String @id @default(uuid())
+  street   String
+  zip      String
+  city     String
+  country  String
+  location Unsupported("geography(Point, 4326)")
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([location], type: Gist)
+  @@map("addresses")
 }
 
 model SystemEmbeddings {

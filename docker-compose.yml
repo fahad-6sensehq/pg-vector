@@ -1,0 +1,35 @@
+services:
+    postgres:
+        container_name: pgVecGistContainer
+        build:
+            context: .
+            dockerfile: docker/postgres.Dockerfile
+        environment:
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres
+            POSTGRES_DB: pg_vector
+        ports:
+            - '5432:5432'
+        volumes:
+            - pgVecGistData:/var/lib/postgresql/data
+        healthcheck:
+            test: ['CMD-SHELL', 'pg_isready -U postgres']
+            interval: 5s
+            timeout: 5s
+            retries: 5
+
+    app:
+        container_name: pgVectorContainer
+        build:
+            context: .
+            dockerfile: docker/app.Dockerfile
+        ports:
+            - '3000:3000'
+        environment:
+            DATABASE_URL: postgresql://postgres:postgres@postgres:5432/pg_vector
+        depends_on:
+            postgres:
+                condition: service_healthy
+
+volumes:
+    pgVecGistData:
